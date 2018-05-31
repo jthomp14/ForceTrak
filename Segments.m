@@ -44,7 +44,7 @@ classdef Segments
     methods
         
         %GIVE DETAILED EXPLANATION ON THIS!
-        function obj = Segments(tstep, BodyWeight,massfrac,coordsdistal,distalCM,coordsproximal,distalROG,proximalROG,CofGROG)
+        function obj = Segments(tstep, BodyWeight, massfrac, coordsdistal, distalCM, coordsproximal, distalROG, proximalROG, CofGROG)
             if nargin == 0
                 %Do nothing
                 
@@ -126,28 +126,44 @@ classdef Segments
                         
                         
                     end
+                    %function[cdat,d_cdat,dd_cdat] = WindowSpline(tbar,xbar,polyorder)  
+                    %Using the above function to smooth out the data with a
+                    %polyorder that can be changed (3 seems nice)
                     %Consider Angular Velocity and Acceleration:
                     %   - Distal:       omegad, alphad
                     %   - Proximal:     omegap, alphap
-                    obj.thetad = thetad;
-                    obj.thetap = thetap;
+                    polyorder = 3;
+                    t = (0:tstep:(a-1)*tstep)'; 
                     
-                    omegad = zeros(a,2);
-                    omegap = zeros(a,2);
-                    alphap = zeros(a,2);
-                    alphad = zeros(a,2);
-                    %Central Finite Difference:
-                    for framenum = 2:a-1
-                        alphad(framenum,:) = (thetad(framenum+1) - 2*thetad(framenum) + thetad(framenum-1))/tstep^2;
-                        alphap(framenum,:) = (thetad(framenum+1) - 2*thetad(framenum) + thetad(framenum-1))/tstep^2;
-                        omegad(framenum,:) = (thetad(framenum+1) - thetad(framenum-1))/(2*tstep);
-                        omegap(framenum,:) = (thetap(framenum+1) - thetap(framenum-1))/(2*tstep);
-                    end
-                    %Assign class properties
-                    obj.omegad = omegad;
-                    obj.omegap = omegap;
-                    obj.alphap = alphap;
-                    obj.alphad = alphad;
+                    %X and Y Coordinates of smoothed position with Velocity
+                    %and Acceleration
+                    [obj.rCM(:,1), obj.vCM(:,1), obj.aCM(:,1)] = WindowSpline(t, obj.rCM(:,1), polyorder);
+                    [obj.rCM(:,2), obj.vCM(:,2), obj.aCM(:,2)] = WindowSpline(t, obj.rCM(:,2), polyorder);
+                    
+                    %Angular information
+                    [obj.thetad, obj.omegad, obj.alphad] = WindowSpline(t,thetad,polyorder);
+                    [obj.thetad, obj.omegad, obj.alphad] = WindowSpline(t,thetad,polyorder);
+                    
+                                  
+%                     %USING THE CENTRAL FINITE DIFFERENT METHOD:
+%                     obj.thetad = thetad;
+%                     obj.thetap = thetap;
+%                     omegad = zeros(a,2);
+%                     omegap = zeros(a,2);
+%                     alphap = zeros(a,2);
+%                     alphad = zeros(a,2);
+%                     %Central Finite Difference:
+%                     for framenum = 2:a-1
+%                         alphad(framenum,:) = (thetad(framenum+1) - 2*thetad(framenum) + thetad(framenum-1))/tstep^2;
+%                         alphap(framenum,:) = (thetad(framenum+1) - 2*thetad(framenum) + thetad(framenum-1))/tstep^2;
+%                         omegad(framenum,:) = (thetad(framenum+1) - thetad(framenum-1))/(2*tstep);
+%                         omegap(framenum,:) = (thetap(framenum+1) - thetap(framenum-1))/(2*tstep);
+%                     end
+%                     %Assign class properties
+%                     obj.omegad = omegad;
+%                     obj.omegap = omegap;
+%                     obj.alphap = alphap;
+%                     obj.alphad = alphad;
                     
                 end
                 

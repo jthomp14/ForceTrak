@@ -265,7 +265,7 @@ classdef ForceTrak < handle
             app.PushButtonChooseStartFrame = uicontrol('Parent',app.ChooseStartFrameTab,'Style','pushbutton','String','Choose Start Frame',...
                 'Units','Normalized','Position',[.12 .5 .18 .06],'fontsize',16,'Callback',@app.CallbackPushButtonChooseStartFrame);
             app.SliderFrameSelection = uicontrol('Parent',app.ChooseStartFrameTab,'Style','slider','String','Choose Box Size',...
-                'Units','Normalized','Position',[.13 .4 .15 .04],'fontsize',12,'Max',1500,'Min',1,'Value',1,'SliderStep',[1 10],'Callback',@app.CallbackSliderFrameSelection);
+                'Units','Normalized','Position',[.13 .4 .15 .04],'fontsize',12,'Max',3000,'Min',1,'Value',1,'SliderStep',[1 10],'Callback',@app.CallbackSliderFrameSelection)
             app.TextStartFrame = uicontrol('Parent',app.ChooseStartFrameTab,'Style','text','String','Start Frame: ~',...
                 'Units','Normalized','Position',[.13 .3 .13 .08],'fontsize',14);
             app.TextEndFrame = uicontrol('Parent',app.ChooseStartFrameTab,'Style','text','String','End Frame : ~',...
@@ -432,15 +432,17 @@ classdef ForceTrak < handle
         function CallbackSliderFrameSelection(app,~,~)
             %Getting error on one specific video, CANNOT figure out why,
             %The issue is the variable "app.SliderFrameSelection.Value" is
-            %not being fed in as a whole number, thust the following two
-            %lines of code were added to ensure the value is the right
-            %class
-            app.SliderFrameSelection.Value = int8(app.SliderFrameSelection.Value);
-            %app.SliderFrameSelection.Value = double(app.SliderFrameSelection.Value);
-            im = read(app.vid1,app.SliderFrameSelection.Value);
+            %not being fed in as an integer, thus the following two
+            %line of code was added to ensure the value is the right
+            %class (namely, renaming a variable as an integer)
+           
+            IntegerHoldingValue = int64(app.SliderFrameSelection.Value);
+            im = read(app.vid1,IntegerHoldingValue);
+
             app.TextCurrentFrame.String = strcat('Current Frame: ',num2str(round(app.SliderFrameSelection.Value)));
             im = rot90(im,app.rot_num);
             imshow(im,'Parent',app.axframeselection)
+
         end
         
         function CallbackPushButtonRotateVid(app,~,~)

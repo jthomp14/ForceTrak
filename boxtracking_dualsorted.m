@@ -3,6 +3,9 @@ function [markerpos,markerarray] = boxtracking_dualsorted(Svid,vTog,markerclicks
 counter = 0;
 time = 0;
 
+%Thinking iteration variable (used only if plotting on GUI is disabled)
+thinking_iter = 0;
+
 %assignment of initial clicks
 for i=1:length(markerclicks(:,1))
     clicks(:,:,i) = markerclicks(i,:);
@@ -470,8 +473,15 @@ for i = 1:tframe
     end
     
     drawnow
-    
-    
+
+%     %Display thinking status when the plotting is commented out
+%     if thinking_iter >= 35
+%         disp('Thinking...')
+%         thinking_iter = 0;
+%     else
+%         thinking_iter = thinking_iter + 1;
+%     end
+        
     x = []; %Reset values
     y = []; %Reset values
     

@@ -96,20 +96,20 @@ t = (0:tstep:(frames-1)*tstep)';
 % %---------------------------------------------------------
 
 
-%**********************************************************************
-%Spline Function <---- Consider making this automatically update
-for j=1:nummark1
-    [markerarray1(j).coordinates(:,1),v1x,a1x] = WindowSpline(t,markerarray1(j).coordinates(:,1),3);
-    [markerarray1(j).coordinates(:,2),v1y,a1y] = WindowSpline(t,markerarray1(j).coordinates(:,2),3);
-    %markerarray1(j) = VelAccel([v1x,v1y],[a1x,a1y]); <--- Error: "undefined VelAccel for input arguments type 'double'"
-    %Fix error later...
-end
-
-for j=1:nummark2
-    [markerarray2(j).coordinates(:,1),v2x,a2x] = WindowSpline(t,markerarray2(j).coordinates(:,1),3);
-    [markerarray2(j).coordinates(:,2),v2y,a2y] = WindowSpline(t,markerarray2(j).coordinates(:,2),3);
-    %markerarray2(j) = VelAccel([v2x,v2y],[a2x,a2y]);
-end
+% %**********************************************************************
+% %Spline Function <---- Consider making this automatically update
+% for j=1:nummark1
+%     [markerarray1(j).coordinates(:,1),v1x,a1x] = WindowSpline(t,markerarray1(j).coordinates(:,1),3);
+%     [markerarray1(j).coordinates(:,2),v1y,a1y] = WindowSpline(t,markerarray1(j).coordinates(:,2),3);
+%     %markerarray1(j) = VelAccel([v1x,v1y],[a1x,a1y]); <--- Error: "undefined VelAccel for input arguments type 'double'"
+%     %Fix error later...
+% end
+% 
+% for j=1:nummark2
+%     [markerarray2(j).coordinates(:,1),v2x,a2x] = WindowSpline(t,markerarray2(j).coordinates(:,1),3);
+%     [markerarray2(j).coordinates(:,2),v2y,a2y] = WindowSpline(t,markerarray2(j).coordinates(:,2),3);
+%     %markerarray2(j) = VelAccel([v2x,v2y],[a2x,a2y]);
+% end
 
 
 
