@@ -453,34 +453,34 @@ for i = 1:tframe
     %*******************************************************
     
     %% Shows Video Verification
-     hsv = rgb2hsv(im);     % Hide THIS IS FOR TESTING
-     imshow(hsv);
-    
-    [m,n,p] = size(markcent);
-    for k=1:m
-        hold on
-        plot(markcent(k,2,i),markcent(k,1,i),'yo','MarkerSize',10,'LineWidth',1.5)
-        
-        line([x(k)-boxDist,x(k)-boxDist],[y(k)+boxDist,y(k)-boxDist],'LineWidth',2,'Color','y');
-        line([x(k)+boxDist,x(k)+boxDist],[y(k)+boxDist,y(k)-boxDist],'LineWidth',2,'Color','y');
-        line([x(k)-boxDist,x(k)+boxDist],[y(k)-boxDist,y(k)-boxDist],'LineWidth',2,'Color','y');
-        line([x(k)-boxDist,x(k)+boxDist],[y(k)+boxDist,y(k)+boxDist],'LineWidth',2,'Color','y');
-
-        if iter ~= 0 && k == whereisj 
-            line([column1,column2],[row1,row2],'LineWidth',2,'color','y')
-            line([column2,column1],[row1,row2],'LineWidth',2,'color','y')
-        end
-    end
-    
-    drawnow
-
-%     %Display thinking status when the plotting is commented out
-%     if thinking_iter >= 35
-%         disp('Thinking...')
-%         thinking_iter = 0;
-%     else
-%         thinking_iter = thinking_iter + 1;
+%      hsv = rgb2hsv(im);     % Hide THIS IS FOR TESTING
+%      imshow(hsv);
+%     
+%     [m,n,p] = size(markcent);
+%     for k=1:m
+%         hold on
+%         plot(markcent(k,2,i),markcent(k,1,i),'yo','MarkerSize',10,'LineWidth',1.5)
+%         
+%         line([x(k)-boxDist,x(k)-boxDist],[y(k)+boxDist,y(k)-boxDist],'LineWidth',2,'Color','y');
+%         line([x(k)+boxDist,x(k)+boxDist],[y(k)+boxDist,y(k)-boxDist],'LineWidth',2,'Color','y');
+%         line([x(k)-boxDist,x(k)+boxDist],[y(k)-boxDist,y(k)-boxDist],'LineWidth',2,'Color','y');
+%         line([x(k)-boxDist,x(k)+boxDist],[y(k)+boxDist,y(k)+boxDist],'LineWidth',2,'Color','y');
+% 
+%         if iter ~= 0 && k == whereisj 
+%             line([column1,column2],[row1,row2],'LineWidth',2,'color','y')
+%             line([column2,column1],[row1,row2],'LineWidth',2,'color','y')
+%         end
 %     end
+%     
+%     drawnow
+
+    %Display thinking status when the plotting is commented out
+    if thinking_iter >= 35
+        disp('Thinking...')
+        thinking_iter = 0;
+    else
+        thinking_iter = thinking_iter + 1;
+    end
         
     x = []; %Reset values
     y = []; %Reset values

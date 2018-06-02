@@ -97,7 +97,7 @@ t = (0:tstep:(frames-1)*tstep)';
 
 
 % %**********************************************************************
-% %Spline Function <---- Consider making this automatically update
+% %Spline Function
 % for j=1:nummark1
 %     [markerarray1(j).coordinates(:,1),v1x,a1x] = WindowSpline(t,markerarray1(j).coordinates(:,1),3);
 %     [markerarray1(j).coordinates(:,2),v1y,a1y] = WindowSpline(t,markerarray1(j).coordinates(:,2),3);
@@ -169,18 +169,17 @@ end
 %JointsChosen: [shoulder, elbow, wrist, hip, thigh, knee, ankle, foot]
 %                   1       2      3     4     5      6     7      8
 %Necessary combinations of markers to make segments:
-%lower leg == must have knee and angle
-%Thigh == must have knee and hip
-%Upper arm == must have shoulder and elbow
-%Forearm == must have elbow and wrist
-%Shoulder <--- figure this out! (currently running as CM = the Shoulder marker coordinates)
-%Foot <--- foot and ankle
-%Trunk <--- figure this out!
+%1 - lower leg == must have knee and angle
+%2 - Thigh == must have knee and hip
+%3 - Upper arm == must have shoulder and elbow
+%4 - Forearm == must have elbow and wrist
+%5 - Shoulder <--- figure this out! (currently running as CM = the Shoulder marker coordinates, with a mass of ZERO)
+%6 - Foot <--- foot and ankle
+%7 - Trunk-Head-Neck (THN) <--- figure this out!
 %Pelvis <--- figure this out!
 %Head <--- figure this out!
 
-SegmentsChosen = zeros(1,6);
-number_possible_segs = length(SegmentsChosen);
+SegmentsChosen = zeros(1,7);
 tester1 = 0;
 tester2 = 0;
 
@@ -312,7 +311,26 @@ if JointsChosen(7) == 1 && JointsChosen(8) == 1
     end
 end
 
-
+%Trunk-Head-Neck (THN) Segment
+if JointsChosen(1) == 1 && JointsChosen(4) == 1
+    THN1 = Segments(tstep, Weight, Anthrodata(19,1), Hip1, Anthrodata(19,3), Shoulder1, Anthrodata(19,6), Anthrodata(19,5), Anthrodata(19,4));
+    THN1.name = 'THN1';
+    THN2 = Segments(tstep, Weight, Anthrodata(19,1), Hip2, Anthrodata(19,3), Shoulder2, Anthrodata(19,6), Anthrodata(19,5), Anthrodata(19,4));
+    THN2.name = 'THN2';
+    SegmentsChosen(7) = 1;
+    if tester1 == 0
+        Segarray1(1) = THN1;
+        tester1 = 1;
+    else
+        Segarray1(end+1) = THN1;
+    end
+    if tester2 == 0
+        Segarray2(1) = THN2;
+        tester2 = 1;
+    else
+        Segarray2(end+1) = THN2;
+    end
+end
 
 %% Calculate Total System CM 
 %Determine if a decent approximation of the system CM can be obtained
@@ -369,20 +387,84 @@ for framenum = 2:frames-1
         vCMsys(framenum,:) = (rCMsys(framenum+1,:) - rCMsys(framenum-1,:))/(2*tstep);
 end
 
+%% Determine acceleration and Velocity with Window Spline
+%Testing this method (even though rCMsys has already been filtered in a
+%sense, so this is somewhat filtering twice.  The central finite difference
+%method is yeilding really bad results for acceleration, however, the
+%velocity seems to be ok (which is to be expected given the applification
+%of noise that happens with each progressive derivative).
 
-%% Find Ground Force Reactions (GRF) and joint forces <------------------------------- Left off here May 24th
+%Run WindowSpline function to determine values for velocity and
+%acceleration
+[W_rCMsys(:,1),W_vCMsys(:,1),W_aCMsys(:,1)] = WindowSpline(t,rCMsys(:,1),3); 
+[W_rCMsys(:,2),W_vCMsys(:,2),W_aCMsys(:,2)] = WindowSpline(t,rCMsys(:,2),3);
+
+
+%% Plot the Velocity and acceleration: <----------- For Testing purposes only
+%Redefine t to account for any loss of frames from windowing
+frames2 = length(vCMsys);
+t2 = (0:tstep:(frames2-1)*tstep)';
+
+figure('pos',[150 40 1100 700])
+
+%Velocity:
+subplot(2,2,1); hold on; box on; grid on;
+plot(t2,vCMsys(:,1),'-^')
+plot(t2,vCMsys(:,2),'-s')
+legend('Velocity (X-coordinate)','Velocity (Y-coordinate)')
+title('Velocity vs. Time')
+xlabel('Time, t [sec]')
+ylabel('Velocity m/s')
+
+%Accleration:
+subplot(2,2,2); hold on; box on; grid on;
+plot(t2,aCMsys(:,1),'-o')
+plot(t2,aCMsys(:,2),'-*')
+legend('Acceleration (X-coordinate)','Acceleration (Y-coordinate)')
+title('Acceleration vs. Time')
+xlabel('Time, t [sec]')
+ylabel('Accleration m/s^2')
+
+%Velocity:
+subplot(2,2,3); hold on; box on; grid on;
+plot(t,W_vCMsys(:,1),'-^','Color',1/255*[196, 97, 51])
+plot(t,W_vCMsys(:,2),'-s','Color',1/255*[137, 28, 181])
+legend('Velocity (X-coordinate)','Velocity (Y-coordinate)')
+title('Velocity vs. Time')
+xlabel('Time, t [sec]')
+ylabel('Velocity m/s')
+
+%Accleration:
+subplot(2,2,4); hold on; box on; grid on;
+plot(t,W_aCMsys(:,1),'-o','Color',1/255*[196, 97, 51])
+plot(t,W_aCMsys(:,2),'-*','Color',1/255*[137, 28, 181])
+legend('Acceleration (X-coordinate)','Acceleration (Y-coordinate)')
+title('Acceleration vs. Time')
+xlabel('Time, t [sec]')
+ylabel('Accleration m/s^2')
+
+
+%Test with window technique by reassigning the window values to the CMsys
+%values used for plotting on the verification tab.
+rCMsys = W_rCMsys;
+aCMsys = W_aCMsys;
+vCMsys = W_vCMsys;
+
+
+%% Find Ground Force Reactions (GRF) and joint forces <------------------------------------------------ Left off here May 24th
 GRFx = Massofsys*aCMsys(:,1);
 GRFy = Massofsys*(g+aCMsys(:,2));
 
 
-%% Compute power
+%% Compute power (Force x velocity)
 Power_ext = GRFy.*vCMsys(:,2);   %alternate way to compute power (using as a check)
+%NEED TO UPDATE THIS TO INCLUDE VECTOR MATH (We have forces in the x <--------------------------------- Do This
+%direction, so disregarding that seems to make no sense...)
 
-
-%% Compute energy
+%% Compute energy (simple integration of power)
 EnergyInt(1) = 0; deltat = t(2)-t(1);
 for i = 1:length(Power_ext)
-    if i > 40
+    if i > 40 %<----- i'm not understanding why the first 40 frames are disregarded...
         EnergyInt(i+1) = EnergyInt(i)+Power_ext(i)*deltat;
     else
         EnergyInt(i+1) = EnergyInt(i);
@@ -391,7 +473,12 @@ end
 
 
 %% Time step for plotting results
-t = t(1:length(t)-1,1);
+%t = t(1:length(t)-1,1); <----- enable if using central finite diff vs.
+%window regression technique for whole body system given the loss of a data
+%point when using the central finite diff method (window regress was
+%written such that there was no loss of data points (though the first 7 or
+%so frames and last 7 or so frames of that method are not necessarily
+%accurate)
 
 
 % %OLD PLOTTING DATA - PLOTTING WILL TAKE PLACE IN ForceTrak.m for the

@@ -52,21 +52,22 @@ classdef Segments
                 obj.mass = BodyWeight*massfrac;
                 obj.massfrac = massfrac;
                 
-                %SINGLE JOINT (not a segment)
                 
-                
+                %Conduct analyis for SINGLE JOINT (not a segment) 
+                %   - This is for the case of the shoulder for example
                 if nargin == 5
                     %Assign Coordinates (distal is taken as default for
                     %segments that do not have multiple points
-                    %i.e. shoulder and foot
+                    %i.e. shoulder
                     obj.mass = 0;
                     obj.distalcoords = coordsdistal;
                     obj.Icm = 0;
                     obj.Id = 0;
                     obj.Ip = 0;
                     
-                    [a,~] = size(coordsdistal);
+                    
                     %Calcuilate length, CM, I, proximal coord
+                    [a,~] = size(coordsdistal);
                     for i = 1:a
                         obj.length(i) = nan;
                         obj.rCM(i,:) = coordsdistal(i,:);
@@ -132,7 +133,7 @@ classdef Segments
                     %Consider Angular Velocity and Acceleration:
                     %   - Distal:       omegad, alphad
                     %   - Proximal:     omegap, alphap
-                    polyorder = 3;
+                    polyorder = 4;
                     t = (0:tstep:(a-1)*tstep)'; 
                     
                     %X and Y Coordinates of smoothed position with Velocity
